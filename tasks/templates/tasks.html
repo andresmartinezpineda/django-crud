@@ -6,31 +6,44 @@
     <title>Tasks</title>
 </head>
 <body>
+    {# Extends the base layout template #}
     {%extends 'layouts/base.html'%}
 
+    {# Main content block inserted into the base template #}
     {%block content%}
 
     <main class="container">
         <div class="row">
             <div class="col-md-6 offset-md-3">
                 
+                {# Page title for pending tasks #}
                 <h1 class="text-center display-3 py-5">Tasks pending</h1>
 
+                {# List of tasks, each task is clickable and links to its detail view #}
                 <ul class="list-group">
                     {%for task in tasks%}
                     <a class="list-group-item" href="{%url 'task_detail' task.id%}">
 
+                        {# Task header with title and username #}
                         <header class="d-flex justify-content-between">
                             {%if task.important%}
+                            {# Task title styled in green if marked as important #}
                             <h1 class="fw-bold text-success">{{task.title}}</h1>
                             {%else%}
+                            {# Default task title styling if not important #}
                             <h1 class="fw-bold">{{task.title}}</h1>
                             {%endif%}
+                            {# Displays the username of the task owner #}
                             <p>{{task.user.username}}</p>
                         </header>
+
+                        {# Displays task description #}
                         <p>{{task.description}}</p>
+
+                        {# Displays importance flag (True/False) #}
                         <p>{{task.important}}</p>
 
+                        {# Displays completion date if available, formatted as "Month Day Year:Minute" #}
                         <p>{{task.datecompleted|date:'M j Y:i'}}</p>
                     </a>
                     {%endfor%}

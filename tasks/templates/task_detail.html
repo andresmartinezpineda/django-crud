@@ -6,30 +6,38 @@
     <title>task detail</title>
 </head>
 <body>
+
+    {# Extends the base layout template #}
     {%extends 'layouts/base.html'%}
 
+    {# Main content block to be inserted into the base template #}
     {%block content%}
 
     <main class="container">
         <div class="row">
             <div class="col-md-4 offset-md-4">
+
+                {# Displays the task title and owner information #}
                 <h1 class="text-secondary">{{task}}</h1>
 
-                {{error}}
+                {{error}} {# Displays error messages if form submission fails #}
 
+                {# Form to update task details #}
                 <form method="POST">
-                    {%csrf_token%}
 
-                    {{form.as_p}}
+                    {%csrf_token%} {# CSRF token for security #}
+
+                    {{form.as_p}} {# Renders the form fields with default paragraph spacing #}
 
                     <button class="btn btn-primary">
                         Update
                     </button>
                 </form>
 
+                {# Buttons to complete or delete the task #}
                 <div class="mt-5 d-flex">
 
-
+                    {# Form to mark the task as completed #}
                     <form action="{%url 'complete_task' task.id %}" method="POST">
                         {%csrf_token%}
                         <button class="btn btn-secondary">
@@ -37,6 +45,7 @@
                         </button>
                     </form>
 
+                    {# Form to delete the task permanently #}
                     <form action="{%url 'delete_task' task.id %}" method="POST">
                         {%csrf_token%}
                         <button class="btn btn-danger">

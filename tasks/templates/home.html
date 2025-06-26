@@ -6,22 +6,28 @@
     <title>Home</title>
 </head>
 <body>
-    
+    {# Extends the base layout template #}
     {%extends 'layouts/base.html'%}
 
+    {# Main content block to be inserted into the base template #}
     {%block content%}
 
     <main class="container py-5">
         <section class="card card-body">
             <h1 class="display-1 text-center">Django App</h1>
 
+            {# Placeholder paragraph with dummy text, replace with project description if needed #}
             <p>Lorem ipsum dolor sit, amet consectetur adipisicing elit. Obcaecati, voluptate hic distinctio sed ducimus laboriosam rerum, ab porro in cum neque reprehenderit vel quisquam sint dolore qui debitis officiis quod aut deserunt omnis ut necessitatibus dolor voluptatem? Optio quo aperiam magni aliquid debitis praesentium dignissimos natus alias qui modi? Voluptatibus nesciunt nisi amet maiores consectetur ipsa optio qui esse consequatur sunt, eum unde autem! Excepturi, tempore placeat autem deleniti saepe obcaecati dolorem corporis unde debitis aut doloribus quisquam sed ducimus laborum necessitatibus. Nulla temporibus magnam ad cupiditate asperiores nemo pariatur aspernatur tempora non labore inventore debitis reiciendis, accusantium quidem eius!</p>
 
+            {# Navigation buttons for user authentication #}
             <div class="text-center">
+
+                {# Button to access the login page #}
                 <a class="btn btn-secondary" href="{%url 'signin'%}">
                     signin
                 </a>
 
+                {# Button to access the registration page #}
                 <a class="btn btn-dark" href="{%url 'signup'%}">
                     signup
                 </a>

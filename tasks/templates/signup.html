@@ -6,33 +6,43 @@
     <title>Signup</title>
 </head>
 <body>
+    {# Extends the base layout template #}
     {%extends 'layouts/base.html'%}
 
+    {# Main content block to be inserted into the base template #}
     {%block content%}
         <main class="container">
             <div class="row">
                 <div class="col-md-4 offset-md-4 mt-5">
+
+                    {# Signup form to create a new user account #}
                     <form method="POST" class="card card-body">
                         <h1 class="text-center">Signup</h1>
-                        {{error}}
-                        
-                        {%csrf_token%}
 
+                        {{error}} {# Displays error message if validation fails #}
+                        
+                        {# CSRF token for security against cross-site request forgery #}
+                        {%csrf_token%} 
+
+                        {# Username input field #}
                         <div class="mb-3">
                             <label for="username">username:</label>
                             <input type="text" name="username" id="username" class="form-control" placeholder="wirte you username">
                         </div>
 
+                        {# Password input field #}
                         <div class="mb-3">
                             <label for="password1">password:</label>
                             <input type="password" name="password1" id="password1" class="form-control" placeholder="wirte you password">
                         </div>
 
+                        {# Password confirmation input field #}
                         <div class="mb-3">
                             <label for="password2">confirm your password:</label>
                             <input type="password" name="password2" id="password2" class="form-control" placeholder="confirm your password">
                         </div>
 
+                        {# Submit button to create the account #}
                         <button class="btn btn-primary">
                             Signup
                         </button>
