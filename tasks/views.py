@@ -1,43 +1,43 @@
-# Importación de atajos y funciones útiles de Django
+# Import useful Django shortcuts and authentication tools
 from django.shortcuts import render,redirect,get_object_or_404
-from django.contrib.auth.forms import UserCreationForm,AuthenticationForm #Formularios prediseñados para autenticación
-from django.contrib.auth.models import User # Modelo de usuario integrado de Django
-from django.contrib.auth import login,logout,authenticate # Funciones de autenticación
-from .forms import CreateTasks # Formulario personalizado para creación/edición de tareas
-from .models import Task # Modelo de datos Task
-from django.utils import timezone # Utilidad para manejo de fechas y horas
-from django.contrib.auth.decorators import login_required # Decorador para proteger vistas que requieren autenticación
+from django.contrib.auth.forms import UserCreationForm,AuthenticationForm # Built-in authentication forms
+from django.contrib.auth.models import User # Django's default User model
+from django.contrib.auth import login,logout,authenticate # Authentication functions
+from .forms import CreateTasks # Custom form for creating/editing tasks
+from .models import Task # Task data model
+from django.utils import timezone # Utilities for date and time handling
+from django.contrib.auth.decorators import login_required # Decorator to protect views for authenticated users only
 
-# Vista principal, muestra la página de inicio
+# Public home page view
 def home(request):
     return render(request,'home.html')
 
 
-# Vista de registro de usuarios
+# User registration view
 def signup(request):
     if request.method == 'GET':
-        # Renderiza el formulario de creación de usuario en una petición GET
+        # Display the user creation form on GET requests
         form = UserCreationForm()
         return render(request,'signup.html',{
             'form': form
         })
     else:
-        # Validación de contraseñas y creación de usuario en una petición POST
+        # Validate passwords and create a new user on POST requests
         if request.POST['password1'] == request.POST['password2']:
             try:
                 user = User.objects.create_user(username=request.POST['username'],password=request.POST['password1'])
                 user.save()
-                login(request,user) # Autentica automáticamente al usuario
+                login(request,user) # Automatically authenticate the user after registration
                 return redirect('tasks')
             except:
-                # Si el usuario ya existe o hay otro error
+                # Handle errors such as username already exists
                 form = UserCreationForm()
                 return render(request,'signup.html',{
                     'form': form,
                     'error': 'username already exist'
                 })
         else:
-            # Contraseñas no coinciden
+            # Passwords do not match
             form = UserCreationForm()
             return render(request,'signup.html',{
                 'form': form,
@@ -45,7 +45,7 @@ def signup(request):
             })
 
 
-# Vista protegida: Lista de tareas pendientes del usuario autenticado
+# Protected view: Displays the list of pending tasks for the authenticated user
 @login_required        
 def tasks(request):
     tasks = Task.objects.filter(user=request.user,datecompleted__isnull=True)
@@ -53,7 +53,7 @@ def tasks(request):
         'tasks': tasks
     })
 
-# Vista protegida: Lista de tareas completadas, ordenadas por fecha de finalización
+# Protected view: Displays completed tasks, sorted by completion date
 @login_required
 def tasks_completed(request):
     tasks = Task.objects.filter(user=request.user,datecompleted__isnull=False).order_by('-datecompleted')
@@ -61,13 +61,14 @@ def tasks_completed(request):
         'tasks': tasks
     })
 
-# Vista protegida: Detalle y edición de una tarea específica
+# Protected view: Displays task details and allows editing
 @login_required
 def task_detail(request,task_id):
-    task = get_object_or_404(Task,pk=task_id,user=request.user) # Garantiza que solo acceda a sus propias tareas
+    # Ensure the user can only access their own tasks
+    task = get_object_or_404(Task,pk=task_id,user=request.user)
     
     if request.method == 'GET':
-        # Renderiza el formulario precargado con los datos de la tarea
+        # Display the task form pre-filled with existing data
         form = CreateTasks(instance=task)
         return render(request,'task_detail.html',{
             'task': task,
@@ -75,28 +76,28 @@ def task_detail(request,task_id):
         })
     else:
         try:
-            # Actualiza los datos de la tarea con los datos del formulario
+            # Update the task with the submitted form data
             form = CreateTasks(request.POST,instance=task)
             form.save()
             return redirect('tasks')
         except:
-            # Manejo de errores durante la actualización
+            # Handle form validation errors
             return render(request,'task_detail.html',{
                 'task': task,
                 'form': form,
                 'error': 'error updating task'
             })
 
-# Vista protegida: Marcar una tarea como completada
+# Protected view: Mark a task as completed
 @login_required
 def complete_task(request,task_id):
     task = get_object_or_404(Task,pk=task_id,user=request.user)
     if request.method == 'POST':
-        task.datecompleted = timezone.now() # Establece la fecha de finalización
+        task.datecompleted = timezone.now() # Set the completion date to the current time
         task.save()
         return redirect('tasks')
 
-# Vista protegida: Eliminar una tarea
+# Protected view: Delete a task
 @login_required
 def delete_task(request,task_id):
     task = get_object_or_404(Task,pk=task_id,user=request.user)
@@ -104,49 +105,51 @@ def delete_task(request,task_id):
         task.delete()
         return redirect('tasks')
 
-# Vista protegida: Crear una nueva tarea
+
+# Protected view: Create a new task
 @login_required
 def create_task(request):
     if request.method == 'GET':
-        # Renderiza el formulario vacío para crear una nueva tarea
+        # Display an empty task creation form
         return render(request,'create_task.html',{
             'form': CreateTasks()
         })
     else:
         try:
             form = CreateTasks(request.POST)
-            new_task = form.save(commit=False) # No guarda aún en base de datos
-            new_task.user = request.user # Asigna el usuario autenticado a la tarea
+            new_task = form.save(commit=False) # Do not save to the database yet
+            new_task.user = request.user # Associate the task with the authenticated user
             new_task.save()
             return redirect('tasks')
         except ValueError:
-            # Error en la validación de los datos del formulario
+            # Handle invalid form input
             return render(request,'create_task.html',{
                 'form': CreateTasks(),
                 'error': 'Please provide valid data'
             })
 
-# Cierre de sesión del usuario autenticado
+# Log out the authenticated user
 @login_required
 def signout(request):
     logout(request)
     return redirect('home')
 
-# Vista de inicio de sesión
+# User login view
 def signin(request):
     if request.method == 'GET':
+        # Display the login form
         return render(request,'signin.html',{
             'form': AuthenticationForm()
         })
     else:
-        # Autenticación del usuario usando los datos del formulario
+        # Authenticate the user with form credentials
         user = authenticate(request,username=request.POST['username'],password=request.POST['password'])
 
         if not user is None:
             login(request,user)
             return redirect('tasks')
         else:
-            # Credenciales inválidas
+            # Handle invalid login attempts
             return render(request,'signin.html',{
                 'form': AuthenticationForm(),
                 'error': 'Username or password is incorrect'

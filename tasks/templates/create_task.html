@@ -6,20 +6,23 @@
     <title>Created tasks</title>
 </head>
 <body>
+    {# Inherits the base layout template #}
     {%extends 'layouts/base.html'%}
 
+    {# Main content block inserted into the base template #}
     {%block content%}
     <main class="container">
         <div class="row">
             <div class="col-md-4 offset-md-4 mt-5">
+
+                {# Form to create a new task #}
                 <form action="{%url 'create_task' %}" method="POST" class="card card-body">
                     <h1>Create your tasks</h1>
 
-                    {{error}}
-                    {%csrf_token%}
+                    {{error}} {# Displays error messages if any #}
+                    {%csrf_token%} {# CSRF protection token #}
 
-                    {{form}}
-
+                    {{form}} {# Render form fields defined in forms.py #}
                     <button class="btn btn-primary">
                         Save
                     </button>
